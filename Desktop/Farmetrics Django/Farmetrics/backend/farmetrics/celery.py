@@ -7,7 +7,7 @@ from celery import Celery
 from celery.schedules import crontab
 
 # Set the default Django settings module for the 'celery' program.
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'farmetrics.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'farmetrics.settings.production')
 
 app = Celery('farmetrics')
 

@@ -46,6 +46,10 @@ LOCAL_APPS = [
     'apps.regions',
     'apps.farmers',
     'apps.farms',
+    'apps.visits',
+    'apps.media',
+    'apps.requests',
+    'apps.notifications',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -61,6 +65,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'apps.organizations.middleware.OrganizationMiddleware',  # Custom middleware for multi-tenancy
+    'apps.core.middleware.AuditLoggingMiddleware',  # Audit logging middleware
 ]
 
 ROOT_URLCONF = 'farmetrics.urls'
@@ -86,16 +91,29 @@ ASGI_APPLICATION = 'farmetrics.asgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': config('DB_NAME', default='farmetrics_db'),
-        'USER': config('DB_USER', default='postgres'),
-        'PASSWORD': config('DB_PASSWORD', default='postgres'),
-        'HOST': config('DB_HOST', default='localhost'),
-        'PORT': config('DB_PORT', default='5432'),
+# Support both DATABASE_URL (Render) and individual DB variables
+import dj_database_url
+
+DATABASE_URL = config('DATABASE_URL', default=None)
+if DATABASE_URL:
+    # Parse DATABASE_URL but override ENGINE for PostGIS
+    db_config = dj_database_url.parse(DATABASE_URL)
+    db_config['ENGINE'] = 'django.contrib.gis.db.backends.postgis'
+    DATABASES = {
+        'default': db_config
     }
-}
+else:
+    # Fallback to individual environment variables
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.contrib.gis.db.backends.postgis',
+            'NAME': config('DB_NAME', default='farmetrics_db'),
+            'USER': config('DB_USER', default='postgres'),
+            'PASSWORD': config('DB_PASSWORD', default='postgres'),
+            'HOST': config('DB_HOST', default='localhost'),
+            'PORT': config('DB_PORT', default='5432'),
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators

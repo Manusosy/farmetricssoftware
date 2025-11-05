@@ -24,6 +24,14 @@ urlpatterns = [
     # API v1 endpoints
     path('api/v1/auth/', include('apps.accounts.urls')),
     path('api/v1/organizations/', include('apps.organizations.urls')),
+    path('api/v1/farmers/', include('apps.farmers.urls')),
+    path('api/v1/farms/', include('apps.farms.urls')),
+    path('api/v1/regions/', include('apps.regions.urls')),
+    path('api/v1/visits/', include('apps.visits.urls')),
+    path('api/v1/media/', include('apps.media.urls')),
+    path('api/v1/requests/', include('apps.requests.urls')),
+    path('api/v1/notifications/', include('apps.notifications.urls')),
+    path('api/v1/core/', include('apps.core.urls')),
 ]
 
 # Serve media files in development

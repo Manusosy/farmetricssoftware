@@ -33,7 +33,9 @@ db.sqlite3
 db.sqlite3-journal
 /media/
 /staticfiles/
-/static/
+# Keep static/ directory structure but ignore contents
+/static/*
+!/static/.gitkeep
 
 # Environment variables
 .env
@@ -58,9 +60,9 @@ htmlcov/
 celerybeat-schedule
 celerybeat.pid
 
-# Logs
-logs/
-*.log
+# Logs - keep directory but ignore log files
+logs/*.log
+!logs/.gitkeep
 
 # Thumbnails
 *.thumb

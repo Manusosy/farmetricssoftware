@@ -4,6 +4,9 @@ Production-specific Django settings for Farmetrics project.
 
 from .base import *
 
+# Note: All base settings are imported above
+# Production-specific overrides below
+
 # Debug mode - always False in production
 DEBUG = False
 
@@ -23,8 +26,14 @@ CORS_ALLOW_ALL_ORIGINS = False
 # Static files - use WhiteNoise compression
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Use Cloudinary for media in production
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+# Use Cloudinary for media in production (if configured)
+# Fallback to local storage if Cloudinary credentials are not set
+USE_CLOUDINARY = config('USE_CLOUDINARY', default=False, cast=bool)
+if USE_CLOUDINARY and config('CLOUDINARY_CLOUD_NAME', default=''):
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+else:
+    # Use local storage if Cloudinary is not configured
+    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 
 # Email backend - use SMTP in production
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -50,11 +59,15 @@ if SENTRY_DSN:
     )
 
 # Production logging - structured JSON for log aggregation
-LOGGING['formatters']['json'] = {
-    'format': '%(asctime)s %(levelname)s %(name)s %(message)s'
-}
-LOGGING['handlers']['console']['formatter'] = 'verbose'
-LOGGING['handlers']['console']['level'] = 'WARNING'
+# Update JSON formatter format while preserving the formatter class
+if 'json' in LOGGING.get('formatters', {}):
+    LOGGING['formatters']['json'].update({
+        'format': '%(asctime)s %(levelname)s %(name)s %(message)s'
+    })
+# Use JSON formatter for console in production (for log aggregation systems)
+if 'console' in LOGGING.get('handlers', {}):
+    LOGGING['handlers']['console']['formatter'] = 'json'
+    LOGGING['handlers']['console']['level'] = 'WARNING'
 
 # Database connection pooling
 DATABASES['default']['CONN_MAX_AGE'] = 600  # 10 minutes

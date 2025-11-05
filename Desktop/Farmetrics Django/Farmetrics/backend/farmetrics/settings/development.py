@@ -4,6 +4,9 @@ Development-specific Django settings for Farmetrics project.
 
 from .base import *
 
+# Note: All base settings are imported above
+# Development-specific overrides below
+
 # Debug mode
 DEBUG = True
 
